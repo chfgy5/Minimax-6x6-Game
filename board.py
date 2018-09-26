@@ -8,6 +8,3 @@ class Board:
 
     def isEmpty(self):
         return np.array_equal(self.state, self.empty)
-
-    def winner(player):
-        self.winner = player

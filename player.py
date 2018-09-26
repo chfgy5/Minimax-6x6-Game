@@ -35,6 +35,7 @@ class Player:
         if ['O'] in row:
             print("hi")
 
+        score = 5*me_three_row_two_side
         return score
 
     

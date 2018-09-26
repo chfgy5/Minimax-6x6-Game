@@ -6,13 +6,26 @@ class Player:
         self.ply = ply
         self.symbol = symbol
 
-    def heuristic(self, b):
-        # find open spots
-        return np.ones([len(b.state),len(b.state[0])])
-
+    def heuristic(self, node):
+        return 1
+    
     def minimax(self, b):
         return [0,0]
 
+    def generate_states(self, b):
+        height = len(b.state)
+        length = len(b.state[0])
+        states = np.zeros([height,length])
+        for i in range(height):
+            for j in range(length):
+                if b[i][j] == '':
+                    copy = np.copy(b.state)
+                    copy[i][j] = self.symbol
+                    states[i][j] = self.heuristic(copy)
+                else: 
+                    # can't move here, sentinel value?
+                    b[i][j] = 0
+        return states
 
     def take_turn(self, b):
         if b.isEmpty():
@@ -20,8 +33,8 @@ class Player:
             loc = [int(len(b.state[0])/2), int(len(b.state)/2)]
             self.move(b, loc)
         else:
-            state = self.heuristic(b)
-            best_move = self.minimax(state)
+            states = self.generate_states(b)
+            best_move = self.minimax(states)
             self.move(b, best_move)
 
     # given set loc = [x, y] places symbol there if empty else error?

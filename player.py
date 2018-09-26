@@ -18,13 +18,13 @@ class Player:
         states = np.zeros([height,length])
         for i in range(height):
             for j in range(length):
-                if b[i][j] == '':
+                if b.state[i][j] == '':
                     copy = np.copy(b.state)
                     copy[i][j] = self.symbol
                     states[i][j] = self.heuristic(copy)
                 else: 
                     # can't move here, sentinel value?
-                    b[i][j] = 0
+                    copy[i][j] = 0
         return states
 
     def take_turn(self, b):

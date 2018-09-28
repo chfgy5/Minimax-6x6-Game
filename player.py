@@ -23,19 +23,23 @@ class Player:
         opp_three_row_one_side = 0
         me_open_two = 0
         opp_open_two = 0
+
         if ['',self.symbol,self.symbol,self.symbol,''] in row:
             me_three_row_two_side += 1
         elif ['',self.symbol,self.symbol,self.symbol] in row or [self.symbol,self.symbol,self.symbol,''] in row:
             me_three_row_one_side += 1
         elif ['',self.symbol,self.symbol] in row or [self.symbol,self.symbol,''] in row:
             me_open_two += 1
-        
-        if ['','O','O','O',''] in row:
-            opp_three_row_two_side += 1
-        if ['O'] in row:
-            print("hi")
 
-        score = 5*me_three_row_two_side
+        # Calculate heuristic value for opponent
+        if ['', self.opponent, self.opponent, self.opponent, ''] in row:
+            opp_three_row_two_side += 1
+        elif ['', self.opponent, self.opponent, self.opponent] in row or [self.opponent, self.opponent, self.opponent, ''] in row:
+            opp_three_row_one_side += 1
+        elif ['', self.opponent, self.opponent] in row or [self.opponent, self.opponent, ''] in row:
+            opp_open_two += 1
+
+        score = 5 * me_three_row_two_side - 10 * opp_three_row_two_side + 3 * me_three_row_one_side - 6 * opp_three_row_one_side + me_open_two - opp_open_two
         return score
 
     

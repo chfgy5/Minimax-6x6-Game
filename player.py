@@ -1,10 +1,10 @@
-import numpy as np
-from board import Board
+from board import *
 
 class Player:
-    def __init__(self, ply, symbol):
+    def __init__(self, ply, symbol, opponent):
         self.ply = ply
         self.symbol = symbol
+        self.opponent = opponent
 
     def heuristic(self, node):
         score = 0
@@ -39,23 +39,23 @@ class Player:
         return score
 
     
-    def minimax(self, b):
-        return np.unravel_index(np.argmax(b), b.shape)
+    def minimax(self, b, node_type, ply):
+        if(ply == 0):
+            return self.heuristic(b)
 
-    def generate_states(self, b):
-        height = len(b.state)
-        length = len(b.state[0])
-        states = np.zeros([height,length])
-        for i in range(height):
-            for j in range(length):
-                if b.state[i][j] == '':
-                    copy = np.copy(b.state)
-                    copy[i][j] = self.symbol
-                    states[i][j] = self.heuristic(copy)
-                else: 
-                    # can't move here, sentinel value?
-                    copy[i][j] = 0
-        return states
+        for y in range(len(b)):
+            for x in range(len(b[0])):
+                if(b[y][x] == ''):
+                    if node_type == "max":
+                        b[y][x] = self.symbol
+                        h = self.minimax(b, "min", ply - 1)
+                        b[y][x] = ''
+                    else:
+                        b[y][x] = self.opponent
+                        h  = self.minimax(b, "max", ply - 1)
+                        b[y][x] = ''
+
+        return h
 
     def take_turn(self, b):
         if b.isEmpty():
@@ -63,8 +63,13 @@ class Player:
             loc = [int(len(b.state[0])/2), int(len(b.state)/2)]
             self.move(b, loc)
         else:
-            states = self.generate_states(b)
-            best_move = self.minimax(states)
+            best_move = [-1, -1]
+            best_val = -10000000
+            for y in range(len(b.state)):
+                for x in range(len(b.state[0])):
+                    h = self.minimax(np.copy(b.state), 'max', self.ply)
+                    if  h > best_val:
+                        best_move = [x,y]
             self.move(b, best_move)
 
     # given set loc = [x, y] places symbol there if empty else error?

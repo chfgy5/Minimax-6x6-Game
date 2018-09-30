@@ -7,42 +7,77 @@ class Player:
         self.opponent = opponent
 
     def heuristic(self, node):
-        score = 0
-        # Evaluate score for each of the 8 lines (6 rows, 6 columns, 10 diagonals)
-        for y in range(len(node)):
-            score += self.evaluate_line(node[y].tolist())
-        for x in range(len(node[0])):
-            score += self.evaluate_line(node.T[x].tolist())
+        return self.evaluate_heuristic(node)
 
-        return score
-    
-    def evaluate_line(self, row):
-        me_three_row_two_side = 0
-        opp_three_row_two_side = 0
-        me_three_row_one_side = 0
-        opp_three_row_one_side = 0
-        me_open_two = 0
-        opp_open_two = 0
+    def blank_check(self, string, symbol, length, hs):
+        blank_count = sum([1 for chr in string if len(chr) == 0])
+        symbol_count = string.count(symbol)
+        if length != symbol_count:
+            return 0
+        else:
+            if blank_count > 0 and length == 3:
+                h_dict = str(symbol) + '_' + str(length) + '_row_' + str(blank_count) + '_side'
+                hs[h_dict][1] += 1
+            elif blank_count > 0 and length == 2:
+                h_dict = str(symbol) + '_' + str(length) + '_row'
+                hs[h_dict][1] += 1
+            return blank_count
 
-        if ['',self.symbol,self.symbol,self.symbol,''] in row:
-            me_three_row_two_side += 1
-        elif ['',self.symbol,self.symbol,self.symbol] in row or [self.symbol,self.symbol,self.symbol,''] in row:
-            me_three_row_one_side += 1
-        elif ['',self.symbol,self.symbol] in row or [self.symbol,self.symbol,''] in row:
-            me_open_two += 1
+    def evaluate_heuristic(self, board):
+        heuristics = {'x_3_row_2_side': [5, 0], 'o_3_row_2_side': [-10, 0], 'x_3_row_1_side': [3, 0], 'o_3_row_1_side': [-6, 0], 'x_2_row': [1, 0], 'o_2_row': [-1, 0]}
+        for i in range(board.shape[0]):
+            for j in range(board.shape[1]):
+                if j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i][j + 1] == board[i][j + 2]:
+                    temp = [board[i][j], board[i][j + 1], board[i][j + 2]]
+                    if 0 <= j - 1 < board.shape[1]: temp = board[i][j - 1] + temp
+                    if 0 <= j + 3 < board.shape[1]: temp = temp + board[i][j + 3]
+                    self.blank_check(temp, board[i][j], 3, heuristics)
 
-        # Calculate heuristic value for opponent
-        if ['', self.opponent, self.opponent, self.opponent, ''] in row:
-            opp_three_row_two_side += 1
-        elif ['', self.opponent, self.opponent, self.opponent] in row or [self.opponent, self.opponent, self.opponent, ''] in row:
-            opp_three_row_one_side += 1
-        elif ['', self.opponent, self.opponent] in row or [self.opponent, self.opponent, ''] in row:
-            opp_open_two += 1
+                elif j < board.shape[1] - 1 and board[i][j] and board[i][j] == board[i][j + 1]:
+                    temp = [board[i][j], board[i][j + 1]]
+                    if 0 <= j - 1 < board.shape[1]: temp = [board[i][j - 1]] + temp
+                    if 0 <= j + 2 < board.shape[1]: temp = temp + [board[i][j + 2]]
+                    self.blank_check(temp, board[i][j], 2, heuristics)
 
-        score = 5 * me_three_row_two_side - 10 * opp_three_row_two_side + 3 * me_three_row_one_side - 6 * opp_three_row_one_side + me_open_two - opp_open_two
-        return score
+                if i < board.shape[0] - 2 and board[i][j] and board[i][j] == board[i + 1][j] == board[i + 2][j]:
+                    temp = [board[i][j], board[i + 1][j], board[i + 2][j]]
+                    if 0 <= i - 1 < board.shape[0]: temp = [board[i - 1][j]] + temp
+                    if 0 <= i + 3 < board.shape[0]: temp = temp + [board[i + 3][j]]
+                    self.blank_check(temp, board[i][j], 3, heuristics)
 
-    
+                elif i < board.shape[0] - 1 and board[i][j] and board[i][j] == board[i + 1][j]:
+                    temp = [board[i][j], board[i + 1][j]]
+                    if 0 <= i - 1 < board.shape[0]: temp = [board[i - 1][j]] + temp
+                    if 0 <= i + 2 < board.shape[0]: temp = temp + [board[i + 2][j]]
+                    self.blank_check(temp, board[i][j], 2, heuristics)
+
+                if i < board.shape[0] - 2 and j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i + 1][j + 1] == board[i + 2][j + 2]:
+                    temp = [board[i][j], board[i + 1][j + 1], board[i + 2][j + 2]]
+                    if 0 <= i - 1 < board.shape[0] and 0 <= j - 1 < board.shape[1]: temp = [board[i - 1][j - 1]] + temp
+                    if 0 <= i + 3 < board.shape[0] and 0 <= j + 3 < board.shape[1]: temp = temp + [board[i + 3][j + 3]]
+                    self.blank_check(temp, board[i][j], 3, heuristics)
+
+                elif i < board.shape[0] - 1 and j < board.shape[1] - 1 and board[i][j] and board[i][j] == board[i + 1][j + 1]:
+                    temp = [board[i][j], board[i + 1][j + 1]]
+                    if 0 <= i - 1 < board.shape[0] and 0 <= j - 1 < board.shape[1]: temp = [board[i - 1][j - 1]] + temp
+                    if 0 <= i + 2 < board.shape[0] and 0 <= j + 2 < board.shape[1]: temp = temp + [board[i + 2][j + 2]]
+                    self.blank_check(temp, board[i][j], 2, heuristics)
+
+                if i < board.shape[0] - 2 and j > 2 and board[i][j] and board[i][j] == board[i + 1][j - 1] == board[i + 2][j - 2]:
+                    temp = [board[i][j], board[i + 1][j - 1], board[i + 2][j - 2]]
+                    if 0 <= i - 1 < board.shape[0] and 0 <= j + 1 < board.shape[1]: temp = [board[i - 1][j + 1]] + temp
+                    if 0 <= i + 3 < board.shape[0] and 0 <= j - 3 < board.shape[1]: temp = temp + [board[i + 3][j - 3]]
+                    self.blank_check(temp, board[i][j], 3, heuristics)
+
+                elif i < board.shape[0] - 1 and j > 1 and board[i][j] and board[i][j] == board[i + 1][j - 1]:
+                    temp = [board[i][j], board[i + 1][j - 1]]
+                    if 0 <= i - 1 < board.shape[0] and 0 <= j + 1 < board.shape[1]: temp = [board[i - 1][j + 1]] + temp
+                    if 0 <= i + 2 < board.shape[0] and 0 <= j - 2 < board.shape[1]: temp = temp + [board[i + 2][j - 2]]
+                    self.blank_check(temp, board[i][j], 2, heuristics)
+        sum_h = sum([val[0] * val[1] for key, val in heuristics.items()])
+        return sum_h
+
+
     def minimax(self, b, node_type, ply):
         if(ply == 0):
             return self.heuristic(b)
@@ -58,7 +93,6 @@ class Player:
                         b[y][x] = self.opponent
                         h  = self.minimax(b, "max", ply - 1)
                         b[y][x] = ''
-
         return h
 
     def take_turn(self, b):

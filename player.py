@@ -24,7 +24,10 @@ class Player:
             return blank_count
 
     def evaluate_heuristic(self, board):
-        heuristics = {'x_3_row_2_side': [5, 0], 'o_3_row_2_side': [-10, 0], 'x_3_row_1_side': [3, 0], 'o_3_row_1_side': [-6, 0], 'x_2_row': [1, 0], 'o_2_row': [-1, 0]}
+        if self.symbol == 'X':
+            heuristics = {'x_3_row_2_side': [5, 0], 'o_3_row_2_side': [-10, 0], 'x_3_row_1_side': [3, 0], 'o_3_row_1_side': [-6, 0], 'x_2_row': [1, 0], 'o_2_row': [-1, 0]}
+        else:
+            heuristics = {'o_3_row_2_side': [5, 0], 'x_3_row_2_side': [-10, 0], 'o_3_row_1_side': [3, 0], 'x_3_row_1_side': [-6, 0], 'o_2_row': [1, 0], 'x_2_row': [-1, 0]}
         for i in range(board.shape[0]):
             for j in range(board.shape[1]):
                 if j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i][j + 1] == board[i][j + 2]:
@@ -74,9 +77,9 @@ class Player:
                     if 0 <= i - 1 < board.shape[0] and 0 <= j + 1 < board.shape[1]: temp = [board[i - 1][j + 1]] + temp
                     if 0 <= i + 2 < board.shape[0] and 0 <= j - 2 < board.shape[1]: temp = temp + [board[i + 2][j - 2]]
                     self.blank_check(temp, board[i][j], 2, heuristics)
+        
         sum_h = sum([val[0] * val[1] for key, val in heuristics.items()])
         return sum_h
-
 
     def minimax(self, b, node_type, ply):
         if(ply == 0):
@@ -106,7 +109,9 @@ class Player:
             best_val = -10000000
             for y in range(len(b.state)):
                 for x in range(len(b.state[0])):
+                    b.state[y][x] = self.symbol
                     h = self.minimax(np.copy(b.state), 'min', self.ply - 1)
+                    b.state[y][x] = ''
                     if  h > best_val:
                         best_move = [x,y]
             self.move(b, best_move)

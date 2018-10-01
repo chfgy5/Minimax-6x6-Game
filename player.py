@@ -82,16 +82,17 @@ class Player:
         if(ply == 0):
             return self.heuristic(b)
 
+        h = 0
         for y in range(len(b)):
             for x in range(len(b[0])):
                 if(b[y][x] == ''):
                     if node_type == "max":
                         b[y][x] = self.symbol
-                        h = self.minimax(b, "min", ply - 1)
+                        h = max(h, self.minimax(b, "min", ply - 1))
                         b[y][x] = ''
                     else:
                         b[y][x] = self.opponent
-                        h  = self.minimax(b, "max", ply - 1)
+                        h = min(h, self.minimax(b, "max", ply - 1))
                         b[y][x] = ''
         return h
 

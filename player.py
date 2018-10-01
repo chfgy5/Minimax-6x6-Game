@@ -16,10 +16,10 @@ class Player:
             return 0
         else:
             if blank_count > 0 and length == 3:
-                h_dict = str(symbol) + '_' + str(length) + '_row_' + str(blank_count) + '_side'
+                h_dict = str(symbol.lower()) + '_' + str(length) + '_row_' + str(blank_count) + '_side'
                 hs[h_dict][1] += 1
             elif blank_count > 0 and length == 2:
-                h_dict = str(symbol) + '_' + str(length) + '_row'
+                h_dict = str(symbol.lower()) + '_' + str(length) + '_row'
                 hs[h_dict][1] += 1
             return blank_count
 

@@ -106,7 +106,7 @@ class Player:
             best_val = -10000000
             for y in range(len(b.state)):
                 for x in range(len(b.state[0])):
-                    h = self.minimax(np.copy(b.state), 'max', self.ply)
+                    h = self.minimax(np.copy(b.state), 'min', self.ply - 1)
                     if  h > best_val:
                         best_move = [x,y]
             self.move(b, best_move)

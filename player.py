@@ -109,11 +109,13 @@ class Player:
             best_val = -10000000
             for y in range(len(b.state)):
                 for x in range(len(b.state[0])):
-                    b.state[y][x] = self.symbol
-                    h = self.minimax(np.copy(b.state), 'min', self.ply - 1)
-                    b.state[y][x] = ''
-                    if  h > best_val:
-                        best_move = [x,y]
+                    if(b.state[y][x] == ''):
+                        b.state[y][x] = self.symbol
+                        h = self.minimax(np.copy(b.state), 'min', self.ply - 1)
+                        b.state[y][x] = ''
+                        if  h > best_val:
+                            best_val = h
+                            best_move = [x,y]
             self.move(b, best_move)
 
     # given set loc = [x, y] places symbol there if empty else error?

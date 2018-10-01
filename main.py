@@ -2,7 +2,7 @@ from player import *
 
 b =  Board()
 player1 = Player(2, 'X', 'O')
-player2 = Player(4, 'O', 'X')
+player2 = Player(2, 'O', 'X')
 
 while(b.winner == ''):
     player1.take_turn(b)

@@ -29,8 +29,8 @@ class Player:
             for j in range(board.shape[1]):
                 if j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i][j + 1] == board[i][j + 2]:
                     temp = [board[i][j], board[i][j + 1], board[i][j + 2]]
-                    if 0 <= j - 1 < board.shape[1]: temp = board[i][j - 1] + temp
-                    if 0 <= j + 3 < board.shape[1]: temp = temp + board[i][j + 3]
+                    if 0 <= j - 1 < board.shape[1]: temp = [board[i][j - 1]] + temp
+                    if 0 <= j + 3 < board.shape[1]: temp = temp + [board[i][j + 3]]
                     self.blank_check(temp, board[i][j], 3, heuristics)
 
                 elif j < board.shape[1] - 1 and board[i][j] and board[i][j] == board[i][j + 1]:

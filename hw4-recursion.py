@@ -4,8 +4,15 @@ import random
 import time
 from os import system
 
-opposit_symbol = {'o': 'x', 'x': 'o'}
-
+MM = 'o'
+opposit_symbol = { 'o':'x', 'x':'o'}
+# board = np.zeros([6,6], dtype=str)
+# board[0] = ['','o','x','','','']
+# board[1] = ['','o','x','','','']
+# board[2] = ['','o','x','','','']
+# board[3] = ['','o','o','x','','']
+# board[4] = ['o','x','x','o','','']
+# board[5] = ['','x','','','','']
 
 def print_board(state):
     for row in state:
@@ -18,10 +25,16 @@ def print_board(state):
         print('|', end='')
     print('\n-------------------------------------')
 
+# board[0] = ['o','o','x','o','','']
+# board[1] = ['','','','','','']
+# board[2] = ['','','x','','','']
+# board[3] = ['','','','x','','']
+# board[4] = ['','','','','','']
+# board[5] = ['','','','','','']
+# print(heuristic(board))
 
 def heuristic(state):
     return evaluate_heuristic(state)
-
 
 def blank_check(string, symbol, length, hs):
     blank_count = sum([1 for chr in string if len(chr) == 0])
@@ -37,15 +50,12 @@ def blank_check(string, symbol, length, hs):
             hs[h_dict][1] += 1
         return blank_count
 
-
 def evaluate_heuristic(board):
     if MM == 'x':
-        heuristics = {'x_3_row_2_side': [5, 0], 'o_3_row_2_side': [-10, 0], 'x_3_row_1_side': [3, 0],
-                      'o_3_row_1_side': [-6, 0], 'x_2_row': [1, 0], 'o_2_row': [-1, 0]}
+        heuristics = {'x_3_row_2_side': [5, 0], 'o_3_row_2_side': [-10, 0], 'x_3_row_1_side': [3, 0], 'o_3_row_1_side': [-6, 0], 'x_2_row': [1, 0], 'o_2_row': [-1, 0]}
     else:
-        heuristics = {'o_3_row_2_side': [5, 0], 'x_3_row_2_side': [-10, 0], 'o_3_row_1_side': [3, 0],
-                      'x_3_row_1_side': [-6, 0], 'o_2_row': [1, 0], 'x_2_row': [-1, 0]}
-
+        heuristics = {'o_3_row_2_side': [5, 0], 'x_3_row_2_side': [-10, 0], 'o_3_row_1_side': [3, 0], 'x_3_row_1_side': [-6, 0], 'o_2_row': [1, 0], 'x_2_row': [-1, 0]}
+        
     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
             if j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i][j + 1] == board[i][j + 2]:
@@ -72,22 +82,19 @@ def evaluate_heuristic(board):
                 if 0 <= i + 2 < board.shape[0]: temp = temp + [board[i + 2][j]]
                 blank_check(temp, board[i][j], 2, heuristics)
 
-            if i < board.shape[0] - 2 and j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i + 1][
-                j + 1] == board[i + 2][j + 2]:
+            if i < board.shape[0] - 2 and j < board.shape[1] - 2 and board[i][j] and board[i][j] == board[i + 1][j + 1] == board[i + 2][j + 2]:
                 temp = [board[i][j], board[i + 1][j + 1], board[i + 2][j + 2]]
                 if 0 <= i - 1 < board.shape[0] and 0 <= j - 1 < board.shape[1]: temp = [board[i - 1][j - 1]] + temp
                 if 0 <= i + 3 < board.shape[0] and 0 <= j + 3 < board.shape[1]: temp = temp + [board[i + 3][j + 3]]
                 blank_check(temp, board[i][j], 3, heuristics)
 
-            elif i < board.shape[0] - 1 and j < board.shape[1] - 1 and board[i][j] and board[i][j] == board[i + 1][
-                j + 1]:
+            elif i < board.shape[0] - 1 and j < board.shape[1] - 1 and board[i][j] and board[i][j] == board[i + 1][j + 1]:
                 temp = [board[i][j], board[i + 1][j + 1]]
                 if 0 <= i - 1 < board.shape[0] and 0 <= j - 1 < board.shape[1]: temp = [board[i - 1][j - 1]] + temp
                 if 0 <= i + 2 < board.shape[0] and 0 <= j + 2 < board.shape[1]: temp = temp + [board[i + 2][j + 2]]
                 blank_check(temp, board[i][j], 2, heuristics)
 
-            if i < board.shape[0] - 2 and j > 2 and board[i][j] and board[i][j] == board[i + 1][j - 1] == board[i + 2][
-                j - 2]:
+            if i < board.shape[0] - 2 and j > 2 and board[i][j] and board[i][j] == board[i + 1][j - 1] == board[i + 2][j - 2]:
                 temp = [board[i][j], board[i + 1][j - 1], board[i + 2][j - 2]]
                 if 0 <= i - 1 < board.shape[0] and 0 <= j + 1 < board.shape[1]: temp = [board[i - 1][j + 1]] + temp
                 if 0 <= i + 3 < board.shape[0] and 0 <= j - 3 < board.shape[1]: temp = temp + [board[i + 3][j - 3]]
@@ -102,26 +109,21 @@ def evaluate_heuristic(board):
     return sum_h
 
 
-def wins(board, symbol, print_winnner=False):
-    for i in range(board.shape[0]):
+def wins(board, symbol, print_winnner = False):
+     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
-            if j < board.shape[1] - 3 and board[i][j] and symbol == board[i][j] == board[i][j + 1] == board[i][j + 2] == \
-                    board[i][j + 3]:
-                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
+            if j < board.shape[1] - 3 and board[i][j] and symbol == board[i][j] == board[i][j + 1] == board[i][j + 2] == board[i][j + 3]:
+                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
                 return True
-            if i < board.shape[0] - 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j] == board[i + 2][j] == \
-                    board[i + 3][j]:
-                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
+            if i < board.shape[0] - 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j] == board[i + 2][j] == board[i + 3][j]:
+                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
                 return True
-            if i < board.shape[0] - 3 and j < board.shape[1] - 3 and symbol == board[i][j] and board[i][j] == \
-                    board[i + 1][j + 1] == board[i + 2][j + 2] == board[i + 3][j + 3]:
-                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
+            if i < board.shape[0] - 3 and j < board.shape[1] - 3 and symbol == board[i][j] and board[i][j] == board[i + 1][j + 1] == board[i + 2][j + 2] == board[i + 3][j + 3]:
+                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
                 return True
-            if i < board.shape[0] - 3 and j > 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j - 1] == \
-                    board[i + 2][j - 2] == board[i + 3][j - 3]:
-                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
+            if i < board.shape[0] - 3 and j > 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j - 1] == board[i + 2][j - 2] == board[i + 3][j - 3]:
+                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
                 return True
-
 
 def game_over(state):
     return wins(state, 'o') or wins(state, 'x')
@@ -131,12 +133,11 @@ def blank_cells(state):
     cells = []
     for i, row in enumerate(state):
         for j, cell in enumerate(row):
-            if not cell:
+            if not cell: 
                 cells.append([i, j])
-
-    random.shuffle(cells)
+                
+    #random.shuffle(cells)
     return cells
-
 
 def minimax(state, depth, symbol):
     if symbol == MM:
@@ -164,24 +165,23 @@ def minimax(state, depth, symbol):
 
     return best
 
-
 def alphabeta_minimax(state, depth, alpha, beta, symbol):
     if depth == 0 or game_over(state):
         score = heuristic(state)
         return [-1, -1, score]
-
+    
     if symbol == MM:
         best = [-1, -1, -infinity]
         for cell in blank_cells(state):
             i, j = cell[0], cell[1]
             state[i][j] = symbol
-
+            
             score = alphabeta_minimax(state, depth - 1, alpha, beta, opposit_symbol[symbol])
             state[i][j] = ''
             score[0], score[1] = i, j
             if score[2] > best[2]:
                 best = score
-
+                
             alpha = max(alpha, best[2])
             if alpha >= beta:
                 break
@@ -191,26 +191,25 @@ def alphabeta_minimax(state, depth, alpha, beta, symbol):
         for cell in blank_cells(state):
             i, j = cell[0], cell[1]
             state[i][j] = symbol
-
+            
             score = alphabeta_minimax(state, depth - 1, alpha, beta, opposit_symbol[symbol])
             state[i][j] = ''
             score[0], score[1] = i, j
             if score[2] < best[2]:
                 best = score
-
+                
             beta = min(beta, best[2])
             if alpha >= beta:
                 break
         return best
 
-
-def moves(state, symbol, desired_depth=0):
-    player_depth = {'x': 4, 'o': 2}
+def moves(state, symbol, desired_depth = 0):
+    player_depth = { 'x':4, 'o':2 }
     depth = len(blank_cells(state))
     if depth == 0 or game_over(state):
         return False
     if desired_depth > 0: depth = desired_depth
-
+        
     print('\nComputer turn [{}]'.format(symbol))
     move = alphabeta_minimax(state, player_depth[symbol], -infinity, +infinity, symbol)
     i, j = move[0], move[1]
@@ -218,11 +217,11 @@ def moves(state, symbol, desired_depth=0):
     print_board(state)
     return True
 
-
-playing_board = np.zeros([6, 6], dtype=str)
+playing_board = np.zeros([6,6], dtype=str)
 playing_board[2][2] = 'x'
 print_board(playing_board)
-MM = current_move = 'o'
+current_move = 'o'
+
 for i in range(100):
     MM = current_move
     if not moves(playing_board, current_move):

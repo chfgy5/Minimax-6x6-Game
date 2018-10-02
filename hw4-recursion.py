@@ -4,15 +4,8 @@ import random
 import time
 from os import system
 
-MM = 'o'
 opposit_symbol = {'o': 'x', 'x': 'o'}
-board = np.zeros([6, 6], dtype=str)
 
-
-# board[2] = ['','o','x','','','']
-# board[3] = ['','o','o','x','','']
-# board[4] = ['o','x','x','o','','']
-# board[5] = ['','x','','','','']
 
 def print_board(state):
     for row in state:
@@ -28,6 +21,7 @@ def print_board(state):
 
 def heuristic(state):
     return evaluate_heuristic(state)
+
 
 def blank_check(string, symbol, length, hs):
     blank_count = sum([1 for chr in string if len(chr) == 0])
@@ -108,20 +102,24 @@ def evaluate_heuristic(board):
     return sum_h
 
 
-def wins(state, symbol):
+def wins(board, symbol, print_winnner=False):
     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
             if j < board.shape[1] - 3 and board[i][j] and symbol == board[i][j] == board[i][j + 1] == board[i][j + 2] == \
                     board[i][j + 3]:
+                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
                 return True
             if i < board.shape[0] - 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j] == board[i + 2][j] == \
                     board[i + 3][j]:
+                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
                 return True
             if i < board.shape[0] - 3 and j < board.shape[1] - 3 and symbol == board[i][j] and board[i][j] == \
                     board[i + 1][j + 1] == board[i + 2][j + 2] == board[i + 3][j + 3]:
+                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
                 return True
             if i < board.shape[0] - 3 and j > 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j - 1] == \
                     board[i + 2][j - 2] == board[i + 3][j - 3]:
+                if print_winnner: print("\n" + symbol.upper() + " is the winner.")
                 return True
 
 
@@ -167,33 +165,71 @@ def minimax(state, depth, symbol):
     return best
 
 
+def alphabeta_minimax(state, depth, alpha, beta, symbol):
+    if depth == 0 or game_over(state):
+        score = heuristic(state)
+        return [-1, -1, score]
+
+    if symbol == MM:
+        best = [-1, -1, -infinity]
+        for cell in blank_cells(state):
+            i, j = cell[0], cell[1]
+            state[i][j] = symbol
+
+            score = alphabeta_minimax(state, depth - 1, alpha, beta, opposit_symbol[symbol])
+            state[i][j] = ''
+            score[0], score[1] = i, j
+            if score[2] > best[2]:
+                best = score
+
+            alpha = max(alpha, best[2])
+            if alpha >= beta:
+                break
+        return best
+    else:
+        best = [-1, -1, +infinity]
+        for cell in blank_cells(state):
+            i, j = cell[0], cell[1]
+            state[i][j] = symbol
+
+            score = alphabeta_minimax(state, depth - 1, alpha, beta, opposit_symbol[symbol])
+            state[i][j] = ''
+            score[0], score[1] = i, j
+            if score[2] < best[2]:
+                best = score
+
+            beta = min(beta, best[2])
+            if alpha >= beta:
+                break
+        return best
+
+
 def moves(state, symbol, desired_depth=0):
+    player_depth = {'x': 4, 'o': 2}
     depth = len(blank_cells(state))
     if depth == 0 or game_over(state):
-        return
+        return False
     if desired_depth > 0: depth = desired_depth
 
-    print('Computer turn [{}]'.format(symbol))
-    move = minimax(state, depth, symbol)
+    print('\nComputer turn [{}]'.format(symbol))
+    move = alphabeta_minimax(state, player_depth[symbol], -infinity, +infinity, symbol)
     i, j = move[0], move[1]
     state[i][j] = symbol
-    print_board(board)
+    print_board(state)
+    return True
 
 
-board = np.zeros([6, 6], dtype=str)
-board[2][2] = 'x'
-print_board(board)
-current_move = 'o'
+playing_board = np.zeros([6, 6], dtype=str)
+playing_board[2][2] = 'x'
+print_board(playing_board)
+MM = current_move = 'o'
 for i in range(100):
     MM = current_move
-    moves(board, current_move, 2)
+    if not moves(playing_board, current_move):
+        break
     current_move = opposit_symbol[current_move]
 
-
-
-
-
-
-
-
-
+if not game_over(playing_board) and not len(blank_cells(playing_board)):
+    print("\nThis game is tie.")
+else:
+    wins(playing_board, opposit_symbol[MM], True)

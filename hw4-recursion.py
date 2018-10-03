@@ -1,18 +1,21 @@
 import numpy as np
 from math import inf as infinity
 import random
-import time
-from os import system
+import sys
+import datetime
 
-MM = 'o'
+MM = 'o' # Maximize player
+NODE_COUNT = 0 # Expanded node
 opposit_symbol = { 'o':'x', 'x':'o'}
-# board = np.zeros([6,6], dtype=str)
-# board[0] = ['','o','x','','','']
-# board[1] = ['','o','x','','','']
-# board[2] = ['','o','x','','','']
-# board[3] = ['','o','o','x','','']
-# board[4] = ['o','x','x','o','','']
-# board[5] = ['','x','','','','']
+
+distance = np.zeros([6,6])
+for i in range(distance.shape[0]):
+    for j in range(distance.shape[1]):
+        if not (i == distance.shape[0]/2 - 1 and j == distance.shape[1]/2 - 1):
+            distance[i][j] = abs((distance.shape[0]/2 - 1) - i) + abs((distance.shape[1]/2 - 1) - j)
+
+def take_toward_middle(cell):
+    return distance[cell[0]][cell[1]]
 
 def print_board(state):
     for row in state:
@@ -24,14 +27,6 @@ def print_board(state):
                 print('|     ', end='')
         print('|', end='')
     print('\n-------------------------------------')
-
-# board[0] = ['o','o','x','o','','']
-# board[1] = ['','','','','','']
-# board[2] = ['','','x','','','']
-# board[3] = ['','','','x','','']
-# board[4] = ['','','','','','']
-# board[5] = ['','','','','','']
-# print(heuristic(board))
 
 def heuristic(state):
     return evaluate_heuristic(state)
@@ -113,16 +108,16 @@ def wins(board, symbol, print_winnner = False):
      for i in range(board.shape[0]):
         for j in range(board.shape[1]):
             if j < board.shape[1] - 3 and board[i][j] and symbol == board[i][j] == board[i][j + 1] == board[i][j + 2] == board[i][j + 3]:
-                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
+                if print_winnner: print("\n\n"+symbol.upper()+" is the winner")
                 return True
             if i < board.shape[0] - 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j] == board[i + 2][j] == board[i + 3][j]:
-                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
+                if print_winnner: print("\n\n"+symbol.upper()+" is the winner")
                 return True
             if i < board.shape[0] - 3 and j < board.shape[1] - 3 and symbol == board[i][j] and board[i][j] == board[i + 1][j + 1] == board[i + 2][j + 2] == board[i + 3][j + 3]:
-                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
+                if print_winnner: print("\n\n"+symbol.upper()+" is the winner")
                 return True
             if i < board.shape[0] - 3 and j > 3 and board[i][j] and symbol == board[i][j] == board[i + 1][j - 1] == board[i + 2][j - 2] == board[i + 3][j - 3]:
-                if print_winnner: print("\n"+symbol.upper()+" is the winner.")
+                if print_winnner: print("\n\n"+symbol.upper()+" is the winner")
                 return True
 
 def game_over(state):
@@ -135,8 +130,9 @@ def blank_cells(state):
         for j, cell in enumerate(row):
             if not cell: 
                 cells.append([i, j])
-                
-    #random.shuffle(cells)
+    
+    random.shuffle(cells)
+    cells.sort(key=take_toward_middle)
     return cells
 
 def minimax(state, depth, symbol):
@@ -166,6 +162,8 @@ def minimax(state, depth, symbol):
     return best
 
 def alphabeta_minimax(state, depth, alpha, beta, symbol):
+    global NODE_COUNT
+    NODE_COUNT += 1
     if depth == 0 or game_over(state):
         score = heuristic(state)
         return [-1, -1, score]
@@ -205,30 +203,42 @@ def alphabeta_minimax(state, depth, alpha, beta, symbol):
 
 def moves(state, symbol, desired_depth = 0):
     player_depth = { 'x':4, 'o':2 }
+    
     depth = len(blank_cells(state))
     if depth == 0 or game_over(state):
         return False
     if desired_depth > 0: depth = desired_depth
         
-    print('\nComputer turn [{}]'.format(symbol))
+    print('\n\nAI turn [{}]'.format(symbol), end='')
+    global NODE_COUNT
+    NODE_COUNT = 0
     move = alphabeta_minimax(state, player_depth[symbol], -infinity, +infinity, symbol)
     i, j = move[0], move[1]
     state[i][j] = symbol
     print_board(state)
+    print("Total expanded nodes:", NODE_COUNT)
     return True
 
+sum_total = list()
 playing_board = np.zeros([6,6], dtype=str)
 playing_board[2][2] = 'x'
 print_board(playing_board)
 current_move = 'o'
 
-for i in range(100):
+for i in range(36):
+    start = datetime.datetime.now()
     MM = current_move
     if not moves(playing_board, current_move):
         break
+    stop = datetime.datetime.now()
+    total = stop-start
+    sum_total.append(round(total.total_seconds() * 1000, 2))
+    print('Execution time:',round(total.total_seconds() * 1000, 2), 'ms')
     current_move = opposit_symbol[current_move]
 
 if not game_over(playing_board) and not len(blank_cells(playing_board)):
-    print("\nThis game is tie.")
+    print("\n\nThis game is tie")
 else:
     wins(playing_board, opposit_symbol[MM], True)
+    
+print('Total Execution time:',sum(sum_total), 'ms')

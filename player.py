@@ -140,9 +140,9 @@ class Player:
                             best_val = h
                             best_move = [x,y]
             self.move(b, best_move)
+        print(b.state)
         print("Time taken this turn (ms): ", (time.time() - start_time) * 1000)
         print("Nodes generated this turn: ", self.node_gen)
-        print(b.state)
         b.wins(self.symbol)
 
     # given set loc = [x, y] places symbol there if empty else error?

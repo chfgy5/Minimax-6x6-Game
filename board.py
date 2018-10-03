@@ -5,6 +5,9 @@ class Board:
         self.state = np.empty([6,6], dtype=str)
         self.empty = np.empty([6,6], dtype=str)
         self.winner = ''
+        self.first_circle = [[2,2], [2,3], [3,2], [3,3]]
+        self.second_circle = [[1,1] ,[2,1] ,[3,1] ,[4,1] ,[4,2] ,[4,3] ,[4,4] ,[3,4] ,[2,4] ,[1,4] ,[1,3] ,[1,2]]
+
 
     def isEmpty(self):
         return np.array_equal(self.state, self.empty)

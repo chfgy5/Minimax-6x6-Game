@@ -1,10 +1,13 @@
 from board import *
+import time
+import random
 
 class Player:
     def __init__(self, ply, symbol, opponent):
         self.ply = ply
         self.symbol = symbol
         self.opponent = opponent
+        self.node_gen = 0
 
     def heuristic(self, node):
         return self.evaluate_heuristic(node)
@@ -91,15 +94,18 @@ class Player:
                 if(b[y][x] == ''):
                     if node_type == "max":
                         b[y][x] = self.symbol
+                        self.node_gen += 1
                         h = max(h, self.minimax(b, "min", ply - 1))
                         b[y][x] = ''
                     else:
                         b[y][x] = self.opponent
+                        self.node_gen += 1
                         h = min(h, self.minimax(b, "max", ply - 1))
                         b[y][x] = ''
         return h
 
     def take_turn(self, b):
+        start_time = time.time()
         if b.isEmpty():
             # assumes board is 2d 
             loc = [int(len(b.state[0])/2), int(len(b.state)/2)]
@@ -111,12 +117,33 @@ class Player:
                 for x in range(len(b.state[0])):
                     if(b.state[y][x] == ''):
                         b.state[y][x] = self.symbol
+                        self.node_gen += 1
                         h = self.minimax(np.copy(b.state), 'min', self.ply - 1)
                         b.state[y][x] = ''
-                        if  h > best_val:
+                        if h == best_val:
+                            move = [x,y]
+                            if move in b.first_circle:
+                                if best_move not in b.first_circle:
+                                    best_val = h
+                                    best_move = move
+                                elif random.randint(1, 100000) % len(b.first_circle) == 0:
+                                    best_val = h
+                                    best_move = move 
+                            elif move in b.second_circle:
+                                if best_move not in b.second_circle:
+                                    best_val = h
+                                    best_move = move
+                                elif random.randint(1, 100000) % len(b.second_circle) == 0:
+                                    best_val = h
+                                    best_move = move 
+                        elif  h > best_val:
                             best_val = h
                             best_move = [x,y]
             self.move(b, best_move)
+        print("Time taken this turn (ms): ", (time.time() - start_time) * 1000)
+        print("Nodes generated this turn: ", self.node_gen)
+        print(b.state)
+        b.wins(self.symbol)
 
     # given set loc = [x, y] places symbol there if empty else error?
     def move(self, b, loc):

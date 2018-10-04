@@ -1,3 +1,4 @@
+# Reference: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
 import numpy as np
 from math import inf as infinity
 import random
